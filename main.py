@@ -17,7 +17,7 @@ class MainWindow(QMainWindow, mainwindow_auto.Ui_MainWindow):
         super(self.__class__, self).__init__()
 
         self.setupUi(self) # gets defined in the UI file
-        # self.showFullScreen() TODO
+        self.showFullScreen()
         ### Hooks to for buttons
         self.HoursPlus.clicked.connect(lambda: self.AddHour())
         self.HoursMinus.clicked.connect(lambda: self.RemoveHour())
