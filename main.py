@@ -17,7 +17,7 @@ class MainWindow(QMainWindow, mainwindow_auto.Ui_MainWindow):
         super(self.__class__, self).__init__()
 
         self.setupUi(self) # gets defined in the UI file
-        self.showFullScreen()
+        # self.showFullScreen() TODO
         ### Hooks to for buttons
         self.HoursPlus.clicked.connect(lambda: self.AddHour())
         self.HoursMinus.clicked.connect(lambda: self.RemoveHour())
@@ -31,7 +31,6 @@ class MainWindow(QMainWindow, mainwindow_auto.Ui_MainWindow):
 
         self.waking_time = datetime.datetime.now()
         self.countdown = False
-        self.b = Brewing()
 
         timeCheckThread = threading.Thread(target=self.timeCheckThreadCallback, daemon=True)
         timeCheckThread.start()
@@ -61,25 +60,29 @@ class MainWindow(QMainWindow, mainwindow_auto.Ui_MainWindow):
         self.WakeUpTime.setText(self.waking_time.strftime("%H:%M"))
     def StartCoffee(self):
         print("Starting coffee")
+        self.b = Brewing()
+
         self.StopCountdown()
+        print("start brewing")
         self.b.start_brewing()
+        del self.b
         
 
     def CorrectWakeUpTime(self):
         if self.waking_time - datetime.datetime.now() < datetime.timedelta(days=0):
             self.waking_time = self.waking_time + datetime.timedelta(days=1)
-        elif self.waking_time - datetime.datetime.now() > datetime.timedelta(days=0):
+        elif self.waking_time - datetime.datetime.now() > datetime.timedelta(days=1):
             self.waking_time = self.waking_time - datetime.timedelta(days=1)
 
 
     def timeCheckThreadCallback(self):
         while True:
-            time.sleep(0.9)
+            time.sleep(0.5)
             timeRemaining = self.waking_time - datetime.datetime.now()
-            timeRemaining_string = f"{int(timeRemaining.seconds / (60*60)):02d}:{int((timeRemaining.seconds / 60)%60)}"
-            self.RemainingTime.setText(timeRemaining_string)
 
-            if self.waking_time == datetime.datetime.now() and self.countdown:
+            self.CurrentTime.setText(f"{datetime.datetime.now().hour:02d}:{datetime.datetime.now().minute}")
+            # print(f"timeRemaining : {timeRemaining} | datetime.datetime.now() {datetime.datetime.now()}")
+            if datetime.datetime.now() > self.waking_time  and self.countdown:
                 self.StartCoffee()
 
     def closeEvent(self, event):
